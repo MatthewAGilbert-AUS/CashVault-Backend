@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Form</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.15.0/cdn/shoelace-autoloader.js"></script>
+
+    <style>
+        * {
+            box-sizing : border-box;
+        }
+
+        .app-header {
+            font-family : Fixel, sans-serif;
+            background  : #2D2D48FF;
+            position    : fixed;
+            top         : 0;
+            right       : 0;
+            left        : 0;
+            height      : 150px;
+            color       : #fff;
+            display     : flex;
+            z-index     : 9;
+            box-shadow  : 4px 0 10px rgba(0, 0, 0, 0.2);
+            align-items : center;
+            padding     : 0 20px;
+        }
+
+        .app-header-main {
+            flex-grow   : 1;
+            display     : flex;
+            align-items : center;
+        }
+
+        .app-header-main::slotted(h1) {
+            color : #fff;
+        }
+
+        .app-logo a {
+            color           : #fff;
+            text-decoration : none;
+            font-weight     : bold;
+            font-size       : 1.2em;
+            padding         : .6em;
+            display         : inline-block;
+        }
+
+        .app-logo img {
+            height : 80px;
+        }
+
+        .app-top-nav a {
+            display         : inline-block;
+            padding         : .8em;
+            text-decoration : none;
+            color           : #fff;
+        }
+
+        .app-top-nav a:hover {
+            color : #fff;
+        }
+
+        .app-side-menu-items a {
+            display         : block;
+            padding         : .5em;
+            text-decoration : none;
+            font-size       : 1.3em;
+            color           : #333;
+        }
+
+        .app-side-menu-items a:hover {
+            background  : #2D2D48FF;
+            font-weight : 600;
+            color       : #fff;
+        }
+
+        .page-title {
+            font-weight : 200;
+            color       : #fff;
+            margin-left : 20px;
+            font-size   : 1.8em;
+        }
+
+        #paymentForm {
+            width  : 300px;
+            margin : 80px auto;
+        }
+
+        .non-header {
+            font-family : Fixel, sans-serif;
+            color : #2D2D48FF;
+            margin-top: 200px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* RESPONSIVE - MOBILE ------------------- */
+       @media screen and (max-width : 550px) {
+
+            .page-title {
+                display : none;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="app-header-main">
+        <div class="app-logo">
+            <a href="https://www.karstenbeck.com/cashvault">
+                <img class="logo" src="cv-logo.svg" alt="Cash Vault Logo"> </a>
+        </div>
+        <h1 class="page-title">Cash Vault Payment Gateway</h1>
+    </div>
+</header>
+
+<h1 class="non-header">Please log into your account to make a payment,</h1>
+
+<form id="paymentForm">
+    <input type="hidden" id="token" name="token" value="{{token}}">
+    <input type="hidden" id="amount" name="amount" value="{{amount}}">
+
+    <sl-input type="email" id="email" name="email" label="Email"></sl-input>
+    <br>
+    <sl-input type="password" id="password" name="password" label="Password"></sl-input>
+    <br> <br>
+    <sl-button variant="primary" type="submit" value="Submit">Submit</sl-button>
+</form>
+
+<script>
+
+    document.getElementById('paymentForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const email = formData.get('email');
+        const password = formData.get('password');
+        const token = formData.get('token');
+        const amount = formData.get('amount');
+
+        try {
+            const response = await fetch('https://cashvaultrest.azurewebsites.net/api/checkout/loginAndPay', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({email, password, token, amount})
+            });
+            const data = await response.text();
+            alert(data);
+        } catch (error) {
+            console.error('Error logging in:', error);
+        }
+    });
+</script>
+</body>
+</html>
